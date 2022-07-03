@@ -7,11 +7,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.picpay.desafio.android"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -36,6 +36,10 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 }
 
@@ -89,4 +93,10 @@ dependencies {
     androidTestImplementation "androidx.test:runner:$test_runner_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "androidx.test:core-ktx:$core_ktx_test_version"
+
+    implementation 'android.arch.persistence.room:runtime:1.0.0-alpha1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0-alpha1'
+    implementation 'android.arch.lifecycle:extensions:1.0.0-alpha1'
+    annotationProcessor 'android.arch.lifecycle:compiler:1.0.0-alpha1'
+
 }
