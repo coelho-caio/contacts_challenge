@@ -1,68 +1,83 @@
 package com.picpay.desafio.android
 
-import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import androidx.test.platform.app.InstrumentationRegistry
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
+import com.picpay.desafio.android.domain.Result
+import com.picpay.desafio.android.domain.model.User
+import com.picpay.desafio.android.domain.usecase.PicPayUseCase
+import com.picpay.desafio.android.domain.usecase.PicPayUseCaseImpl
+import com.picpay.desafio.android.ui.MainActivity
+import com.picpay.desafio.android.ui.viewmodel.PicPayViewModel
+import com.picpay.desafio.android.ui.viewmodel.UserUIState
+import io.mockk.mockk
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import org.koin.core.module.Module
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.mockito.Mockito
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 
+@RunWith(AndroidJUnit4ClassRunner::class)
+class MainActivityTest : KoinTest {
 
-class MainActivityTest {
+    @get:Rule
+    var intentRule = IntentsTestRule(MainActivity::class.java, true, false)
 
-    private val server = MockWebServer()
+    lateinit var mockModule: Module
+    lateinit var viewModel: PicPayViewModel
 
-    private val context = InstrumentationRegistry.getInstrumentation().targetContext
-
-    @Test
-    fun shouldDisplayTitle() {
-        launchActivity<MainActivity>().apply {
-            val expectedTitle = context.getString(R.string.title)
-
-            moveToState(Lifecycle.State.RESUMED)
-
-            onView(withText(expectedTitle)).check(matches(isDisplayed()))
+    @Before
+    fun setup() {
+        viewModel = Mockito.mock(PicPayViewModel::class.java)
+        mockModule = module {
+            single(override = true) { viewModel }
         }
+        loadKoinModules(mockModule)
+    }
+
+    @After
+    fun tearDown() {
+        unloadKoinModules(mockModule)
     }
 
     @Test
-    fun shouldDisplayListItem() {
-        server.dispatcher = object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse {
-                return when (request.path) {
-                    "/users" -> successResponse
-                    else -> errorResponse
-                }
-            }
-        }
+    fun display_contacts_in_success_response(): Unit = runBlocking {
+        val resultExpected = MutableStateFlow(
+            UserUIState(
+                list = listOf(
+                    User(
+                        id = 1,
+                        img = "test",
+                        name = "test",
+                        username = "test"
+                    )
+                )
+            )
+        )
 
-        server.start(serverPort)
+        `when`(viewModel.user).thenReturn(resultExpected)
 
-        launchActivity<MainActivity>().apply {
-            // TODO("validate if list displays items returned by server")
-        }
+        intentRule.launchActivity(null)
+        Thread.sleep(10000)
 
-        server.close()
+        onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
+
     }
 
-    companion object {
-        private const val serverPort = 8080
-
-        private val successResponse by lazy {
-            val body =
-                "[{\"id\":1001,\"name\":\"Eduardo Santos\",\"img\":\"https://randomuser.me/api/portraits/men/9.jpg\",\"username\":\"@eduardo.santos\"}]"
-
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(body)
-        }
-
-        private val errorResponse by lazy { MockResponse().setResponseCode(404) }
-    }
 }

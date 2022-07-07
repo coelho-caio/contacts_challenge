@@ -29,7 +29,7 @@ class PicPayRepositoryImpl(
         }
     }
 
-    private suspend fun saveUserInDb(list: List<UserResponse>) {
+        private suspend fun saveUserInDb(list: List<UserResponse>) {
         list.forEach {
             userDao.insertUsers(it.toEntity())
         }

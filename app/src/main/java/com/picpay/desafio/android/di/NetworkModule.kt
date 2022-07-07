@@ -20,6 +20,6 @@ private fun provideRetrofit(): Retrofit {
             OkHttpClient.Builder()
                 .build()
         )
-        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 }

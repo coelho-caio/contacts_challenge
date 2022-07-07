@@ -6,9 +6,9 @@ import com.picpay.desafio.android.domain.model.User
 
 fun UserResponse.toEntity() = UserEntity(
     id = this.id,
-    img = this.img,
-    name = this.name,
-    username = this.username
+    img = this.img ?: "",
+    name = this.name?: "",
+    username = this.username?: ""
 )
 
 fun UserEntity.toResponse() = UserResponse(
@@ -20,7 +20,7 @@ fun UserEntity.toResponse() = UserResponse(
 
 fun UserResponse.toDomain() = User(
     id = this.id,
-    img = this.img,
-    name = this.name,
-    username = this.username
+    img = this.img?: "",
+    name = this.name?: "",
+    username = this.username?: ""
 )

@@ -2,6 +2,7 @@ package com.picpay.desafio.android.application
 
 import android.app.Application
 import com.picpay.desafio.android.di.dataSourceModule
+import com.picpay.desafio.android.di.dbModule
 import com.picpay.desafio.android.di.networkModule
 import com.picpay.desafio.android.domain.di.useCaseModule
 import com.picpay.desafio.android.ui.di.viewModelModule
@@ -19,7 +20,7 @@ class MyApplication : Application() {
         startKoin {
             androidContext(this@MyApplication)
             modules(
-                listOf(dataSourceModule, useCaseModule, viewModelModule, networkModule)
+                listOf(dataSourceModule, useCaseModule, viewModelModule, networkModule, dbModule)
 
             )
         }
